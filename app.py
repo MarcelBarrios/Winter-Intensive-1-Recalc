@@ -1,9 +1,13 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from pymongo import MongoClient
 from models.calculation import calculate_retirement
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = "your_secret_key"
+app.secret_key = os.getenv("SECRET_KEY")
 
 # Database setup
 client = MongoClient("mongodb://localhost:27017/")
