@@ -16,18 +16,33 @@
             <h1>Retirement Calculator</h1>
         </header>
 
-        <form id="calculation-form" method="POST" action="{{ url_for('calculate') }}">
-            <label for="salary">Annual Salary ($):</label>
+        <form id="calculation-form" method="POST" action="{{ url_for('index') }}">
+            <label for="age">What's your current age?</label>
+            <input type="number" id="age" name="age" required>
+
+            <label for="retirement_age">What age do you plan to retire?</label>
+            <input type="number" id="retirement_age" name="retirement_age" required>
+
+            <label for="salary">What's your current annual household income? ($):</label>
             <input type="number" id="salary" name="salary" required>
 
-            <label for="investment_percentage">Investment Percentage (%):</label>
-            <input type="number" id="investment_percentage" name="investment_percentage" required>
+            <label for="increase_percentage">How much do you expect your annual income to increase? (%):</label>
+            <input type="number" id="increase_percentage" name="increase_percentage" required>
 
-            <label for="current_savings">Current Savings ($):</label>
-            <input type="number" id="current_savings" name="current_savings" required>
+            <label for="retirement_so_far">How much have you saved for retirement so far? ($):</label>
+            <input type="number" id="retirement_so_far" name="retirement_so_far" required>
 
-            <!-- <label for="years_until_retirement">Years Until Retirement:</label>
-            <input type="number" id="years_until_retirement" name="years_until_retirement" required> -->
+            <label for="percentage_year_saved">How much do you plan to save each year for retirement? (%):</label>
+            <input type="number" id="percentage_year_saved" name="percentage_year_saved" required>
+
+            <label for="spend_in_retirement">How much money do you plan to spend each year in retirement? ($):</label>
+            <input type="number" id="spend_in_retirement" name="spend_in_retirement" required>
+
+            <label for="expected_return_before">Expected return on investments before retirement (%):</label>
+            <input type="number" id="expected_return_before" name="expected_return_before" required>
+
+            <label for="expected_return_during">Expected return on investments during retirement (%):</label>
+            <input type="number" id="expected_return_during" name="expected_return_during" required>
 
             <button type="submit">Calculate</button>
         </form>

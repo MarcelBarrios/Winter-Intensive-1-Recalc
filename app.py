@@ -18,30 +18,60 @@ calculations_collection = db.calculations
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
-        # Retrieve form data
-        salary = float(request.form["salary"])
-        investment_percentage = float(request.form["investment_percentage"])
-        current_savings = float(request.form["current_savings"])
-        years_until_retirement = int(request.form["years_until_retirement"])
-        profession = request.form.get("profession", "Unknown")
+        try:
+            # Retrieve form data
+            age = int(request.form["age"])
+            retirement_age = int(request.form["retirement_age"])
+            salary = float(request.form["salary"])
+            increase_percentage = float(request.form["increase_percentage"])
+            retirement_so_far = float(request.form["retirement_so_far"])
+            percentage_year_saved = float(
+                request.form["percentage_year_saved"])
+            spend_in_retirement = float(request.form["spend_in_retirement"])
+            expected_return_before = float(
+                request.form["expected_return_before"])
+            expected_return_during = float(
+                request.form["expected_return_during"])
 
-        # Calculate future value
-        future_value = calculate_retirement(
-            salary, investment_percentage, current_savings, years_until_retirement
-        )
+            # Calculate years until retirement
+            years_until_retirement = retirement_age - age
+            if years_until_retirement <= 0:
+                flash("Retirement age must be greater than your current age.", "error")
+                return redirect(url_for("index"))
 
-        # Save to database
-        calculations_collection.insert_one({
-            "profession": profession,
-            "salary": salary,
-            "investment_percentage": investment_percentage,
-            "current_savings": current_savings,
-            "years_until_retirement": years_until_retirement,
-            "future_value": future_value
-        })
+            # Call the retirement calculation function
+            future_value = calculate_retirement(
+                salary,
+                percentage_year_saved,
+                retirement_so_far,
+                years_until_retirement,
+                increase_percentage,
+                expected_return_before,
+                expected_return_during,
+                spend_in_retirement
+            )
 
-        # Flash a success message
-        flash(f"Calculation saved! Future Value: ${future_value:,.2f}")
+            # Save the calculation to the database
+            calculations_collection.insert_one({
+                "age": age,
+                "retirement_age": retirement_age,
+                "salary": salary,
+                "increase_percentage": increase_percentage,
+                "retirement_so_far": retirement_so_far,
+                "percentage_year_saved": percentage_year_saved,
+                "spend_in_retirement": spend_in_retirement,
+                "expected_return_before": expected_return_before,
+                "expected_return_during": expected_return_during,
+                "future_value": future_value
+            })
+
+            # Flash success message
+            flash(f"Calculation saved! Future Value: ${
+                  future_value:,.2f}", "success")
+        except ValueError:
+            flash(
+                "Invalid input. Please make sure all fields are filled correctly.", "error")
+
         return redirect(url_for("index"))
 
     # Retrieve saved calculations for display
