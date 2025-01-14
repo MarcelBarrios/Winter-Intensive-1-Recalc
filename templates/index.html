@@ -5,53 +5,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Retirement Calculator</title>
-    <link rel="stylesheet" href="/static/css/styles.css">
-    <script src="/static/js/scripts.js" defer></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
 </head>
 
 <body>
-    <header>
-        <h1>Retirement Calculator</h1>
-    </header>
+    <div class="container">
 
-    <main>
-        <!-- Form Section -->
-        <section id="calculator-section">
-            <form id="calculator-form" onsubmit="handleCalculate(event)">
-                <label for="profession">Profession:</label>
-                <input type="text" id="profession" name="profession" required><br>
+        <header>
+            <h1>Retirement Calculator</h1>
+        </header>
 
-                <label for="salary">Annual Salary (USD):</label>
-                <input type="number" id="salary" name="salary" step="0.01" required><br>
+        <form id="calculation-form" method="POST" action="{{ url_for('calculate') }}">
+            <label for="salary">Annual Salary ($):</label>
+            <input type="number" id="salary" name="salary" required>
 
-                <label for="invest_percent">Investment Percentage (%):</label>
-                <input type="number" id="invest_percent" name="invest_percent" step="0.1" required><br>
+            <label for="investment_percentage">Investment Percentage (%):</label>
+            <input type="number" id="investment_percentage" name="investment_percentage" required>
 
-                <button type="submit">Calculate</button>
-            </form>
-        </section>
+            <label for="current_savings">Current Savings ($):</label>
+            <input type="number" id="current_savings" name="current_savings" required>
 
-        <!-- Results Section -->
-        <section id="results-section" style="display: none;">
+            <!-- <label for="years_until_retirement">Years Until Retirement:</label>
+            <input type="number" id="years_until_retirement" name="years_until_retirement" required> -->
+
+            <button type="submit">Calculate</button>
+        </form>
+
+        <div id="results" class="results-section">
+            {% if results %}
             <h2>Calculation Results</h2>
-            <p><strong>Profession:</strong> <span id="result-profession"></span></p>
-            <p><strong>Annual Salary:</strong> $<span id="result-salary"></span></p>
-            <p><strong>Investment Percentage:</strong> <span id="result-invest-percent"></span>%</p>
-            <p><strong>Yearly Investment:</strong> $<span id="result-yearly-investment"></span></p>
-            <p><strong>Total Savings (35 years):</strong> $<span id="result-total-savings"></span></p>
+            <p>Future Value of Investment: ${{ results.future_value }}</p>
+            {% endif %}
+        </div>
 
-            <button onclick="saveResult()">Save Result</button>
-            <button onclick="showCalculator()">Back to Calculator</button>
-        </section>
-
-        <!-- Saved Results Section -->
-        <section id="saved-results-section" style="display: none;">
-            <h2>Saved Results</h2>
-            <ul id="saved-results-list"></ul>
-
-            <button onclick="showCalculator()">Back to Calculator</button>
-        </section>
-    </main>
+        <div id="saved-calculations" class="saved-section">
+            {% if saved_calculations %}
+            <h2>Saved Calculations</h2>
+            <ul>
+                {% for calculation in saved_calculations %}
+                <li>
+                    {{ calculation.profession }}: Future Value = ${{ calculation.future_value }}
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+    </div>
 </body>
 
 </html>
