@@ -18,6 +18,9 @@
         </header>
 
         <form id="calculation-form" method="POST" action="{{ url_for('index') }}">
+            <label for="profession">What's the profession you chose?</label>
+            <input type="string" id="profession" name="profession" required>
+
             <label for="age">What's your current age?</label>
             <input type="number" id="age" name="age" required>
 
@@ -45,25 +48,41 @@
             <label for="expected_return_during">Expected return on investments during retirement (%):</label>
             <input type="number" id="expected_return_during" name="expected_return_during" required>
 
-            <button type="submit">Calculate</button>
+            <button type="submit" id="calculate-bttn">Calculate</button>
         </form>
 
+
         <div id="results" class="results-section">
+            <h2>
+                Profession: <span id="selected-profession">N/A</span> |
+                Your Total Savings at Retirement: $<span id="total-savings">0.00</span>
+            </h2>
             <canvas id="savingsChart" width="400" height="200"></canvas>
         </div>
+
 
         <div id="saved-calculations" class="saved-section">
             {% if saved_calculations %}
             <h2>Saved Calculations</h2>
             <ul>
                 {% for calculation in saved_calculations %}
-                <li>{{ calculation.current_age }} to {{ calculation.retirement_age }}: ${{ calculation.balances[-1] }}
+                <li>
+                    Profession: {{ calculation.profession }}. From age {{ calculation.current_age }} to {{
+                    calculation.retirement_age }}.
+                    Last balance: ${{ calculation.balances[-1] }}. Total savings: ${{
+                    calculation.total_savings_at_retirement }}.
+
+                    <button class="show-graph-button" data-id="{{ calculation._id }}">Show Graph</button>
+
+                    <form method="POST" action="{{ url_for('delete_calculation', calculation_id=calculation._id) }}"
+                        style="display: inline;">
+                        <button type="submit" class="delete-button">Delete</button>
+                    </form>
                 </li>
                 {% endfor %}
             </ul>
             {% endif %}
         </div>
-
     </div>
 
     <script>
