@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from pymongo import MongoClient
 from models.calculation import calculate_retirement
 from dotenv import load_dotenv
@@ -17,7 +17,8 @@ calculations_collection = db.calculations
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    years, balances = [], []
+    years = session.pop('years', [])
+    balances = session.pop('balances', [])
     if request.method == "POST":
         try:
             # Retrieve form data
@@ -67,6 +68,10 @@ def index():
                     "years": years,
                     "balances": balances
                 })
+
+                session['years'] = years
+                session['balances'] = balances
+
             except Exception as e:
                 flash("Failed to save calculation to the database.", "error")
                 print(f"Database error: {e}")
@@ -84,6 +89,8 @@ def index():
 
         return redirect(url_for("index"))
 
+    print("years -> ", years)
+    print("balances -> ", balances)
     # Retrieve saved calculations for display
     saved_calculations = list(calculations_collection.find())
     return render_template("index.html",
