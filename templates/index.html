@@ -7,6 +7,7 @@
     <title>Retirement Calculator</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -48,10 +49,7 @@
         </form>
 
         <div id="results" class="results-section">
-            {% if results %}
-            <h2>Calculation Results</h2>
-            <p>Future Value of Investment: ${{ results.future_value }}</p>
-            {% endif %}
+            <canvas id="savingsChart" width="400" height="200"></canvas>
         </div>
 
         <div id="saved-calculations" class="saved-section">
@@ -59,14 +57,62 @@
             <h2>Saved Calculations</h2>
             <ul>
                 {% for calculation in saved_calculations %}
-                <li>
-                    {{ calculation.profession }}: Future Value = ${{ calculation.future_value }}
+                <li>{{ calculation.current_age }} to {{ calculation.retirement_age }}: ${{ calculation.balances[-1] }}
                 </li>
                 {% endfor %}
             </ul>
             {% endif %}
         </div>
+
     </div>
+
+    <script>
+        const retirementYears = {{ years | tojson | safe }};
+        const retirementBalances = {{ balances | tojson | safe }};
+
+        if (retirementYears.length > 0 && retirementBalances.length > 0) {
+            const ctx = document.getElementById('savingsChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: retirementYears,
+                    datasets: [{
+                        label: 'Projected Savings',
+                        data: retirementBalances,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Year'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Savings ($)'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+
 </body>
 
 </html>

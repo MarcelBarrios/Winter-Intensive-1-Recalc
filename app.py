@@ -17,6 +17,7 @@ calculations_collection = db.calculations
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+    years, balances = [], []
     if request.method == "POST":
         try:
             # Retrieve form data
@@ -33,50 +34,62 @@ def index():
             expected_return_during = float(
                 request.form["expected_return_during"])
 
-            # Calculate years until retirement
-            years_until_retirement = retirement_age - age
-            if years_until_retirement <= 0:
-                flash("Retirement age must be greater than your current age.", "error")
+            # Validation
+            if age < 0 or retirement_age < 0:
+                flash("Age and retirement age must be positive numbers.", "error")
+                return redirect(url_for("index"))
+            if age >= 80:
+                flash("Age must be less than 80.", "error")
+                return redirect(url_for("index"))
+            if retirement_age <= age:
+                flash("Retirement age must be greater than current age.", "error")
                 return redirect(url_for("index"))
 
             # Call the retirement calculation function
-            future_value = calculate_retirement(
-                salary,
-                percentage_year_saved,
-                retirement_so_far,
-                years_until_retirement,
-                increase_percentage,
-                expected_return_before,
-                expected_return_during,
-                spend_in_retirement
+            years, balances = calculate_retirement(
+                age, retirement_age, salary, increase_percentage,
+                retirement_so_far, percentage_year_saved, spend_in_retirement,
+                expected_return_before, expected_return_during
             )
 
             # Save the calculation to the database
-            calculations_collection.insert_one({
-                "age": age,
-                "retirement_age": retirement_age,
-                "salary": salary,
-                "increase_percentage": increase_percentage,
-                "retirement_so_far": retirement_so_far,
-                "percentage_year_saved": percentage_year_saved,
-                "spend_in_retirement": spend_in_retirement,
-                "expected_return_before": expected_return_before,
-                "expected_return_during": expected_return_during,
-                "future_value": future_value
-            })
+            try:
+                calculations_collection.insert_one({
+                    "current_age": age,
+                    "retirement_age": retirement_age,
+                    "salary": salary,
+                    "increase_percentage": increase_percentage,
+                    "current_savings": retirement_so_far,
+                    "percentage_year_saved": percentage_year_saved,
+                    "spend_in_retirement": spend_in_retirement,
+                    "expected_return_before": expected_return_before,
+                    "expected_return_during": expected_return_during,
+                    "years": years,
+                    "balances": balances
+                })
+            except Exception as e:
+                flash("Failed to save calculation to the database.", "error")
+                print(f"Database error: {e}")
+                return redirect(url_for("index"))
 
             # Flash success message
-            flash(f"Calculation saved! Future Value: ${
-                  future_value:,.2f}", "success")
+            flash(f"Calculation saved! Final Balance: ${
+                  balances[-1]:,.2f}", "success")
         except ValueError:
             flash(
                 "Invalid input. Please make sure all fields are filled correctly.", "error")
+        except Exception as e:
+            flash("An unexpected error occurred.", "error")
+            print(f"Error: {e}")
 
         return redirect(url_for("index"))
 
     # Retrieve saved calculations for display
     saved_calculations = list(calculations_collection.find())
-    return render_template("index.html", saved_calculations=saved_calculations)
+    return render_template("index.html",
+                           saved_calculations=saved_calculations,
+                           years=years if years else [],
+                           balances=balances if balances else [])
 
 
 if __name__ == "__main__":
