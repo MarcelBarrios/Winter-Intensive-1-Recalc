@@ -5,79 +5,107 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Retirement Calculator</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="{{ url_for('static', filename='script.js') }}" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
-    <div class="container">
-
-        <header>
-            <h1>Retirement Calculator</h1>
+    <div class="container mt-5">
+        <header class="text-center mb-4">
+            <h1 class="display-4 text-primary">Retirement Calculator</h1>
+            <p class="lead">Plan your financial future with ease.</p>
         </header>
 
-        <form id="calculation-form" method="POST" action="{{ url_for('index') }}">
-            <label for="profession">What's the profession you chose?</label>
-            <input type="string" id="profession" name="profession" required>
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <form id="calculation-form" method="POST" action="{{ url_for('index') }}">
+                    <div class="form-group">
+                        <label for="profession">Profession</label>
+                        <input type="text" id="profession" name="profession" class="form-control"
+                            placeholder="Enter your profession" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="age">Current Age</label>
+                            <input type="number" id="age" name="age" class="form-control" placeholder="Your current age"
+                                required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="retirement_age">Retirement Age</label>
+                            <input type="number" id="retirement_age" name="retirement_age" class="form-control"
+                                placeholder="Age you plan to retire" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="salary">Current Annual Income ($)</label>
+                        <input type="number" id="salary" name="salary" class="form-control"
+                            placeholder="Enter your annual income" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="increase_percentage">Annual Income Growth Rate (%)</label>
+                        <input type="number" id="increase_percentage" name="increase_percentage" class="form-control"
+                            placeholder="Expected growth rate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="retirement_so_far">Current Retirement Savings ($)</label>
+                        <input type="number" id="retirement_so_far" name="retirement_so_far" class="form-control"
+                            placeholder="Savings so far" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="percentage_year_saved">Yearly Savings Rate (%)</label>
+                        <input type="number" id="percentage_year_saved" name="percentage_year_saved"
+                            class="form-control" placeholder="Percentage saved annually" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="spend_in_retirement">Annual Retirement Spending ($)</label>
+                        <input type="number" id="spend_in_retirement" name="spend_in_retirement" class="form-control"
+                            placeholder="Expected yearly spending" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="expected_return_before">Return Before Retirement (%)</label>
+                            <input type="number" id="expected_return_before" name="expected_return_before"
+                                class="form-control" placeholder="Return rate before retirement" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="expected_return_during">Return During Retirement (%)</label>
+                            <input type="number" id="expected_return_during" name="expected_return_during"
+                                class="form-control" placeholder="Return rate during retirement" required>
+                        </div>
+                    </div>
+                    <button type="submit" id="calculate-bttn" class="btn btn-primary btn-block">Calculate</button>
+                </form>
+            </div>
+        </div>
 
-            <label for="age">What's your current age?</label>
-            <input type="number" id="age" name="age" required>
-
-            <label for="retirement_age">What age do you plan to retire?</label>
-            <input type="number" id="retirement_age" name="retirement_age" required>
-
-            <label for="salary">What's your current annual household income? ($):</label>
-            <input type="number" id="salary" name="salary" required>
-
-            <label for="increase_percentage">How much do you expect your annual income to increase? (%):</label>
-            <input type="number" id="increase_percentage" name="increase_percentage" required>
-
-            <label for="retirement_so_far">How much have you saved for retirement so far? ($):</label>
-            <input type="number" id="retirement_so_far" name="retirement_so_far" required>
-
-            <label for="percentage_year_saved">How much do you plan to save each year for retirement? (%):</label>
-            <input type="number" id="percentage_year_saved" name="percentage_year_saved" required>
-
-            <label for="spend_in_retirement">How much money do you plan to spend each year in retirement? ($):</label>
-            <input type="number" id="spend_in_retirement" name="spend_in_retirement" required>
-
-            <label for="expected_return_before">Expected return on investments before retirement (%):</label>
-            <input type="number" id="expected_return_before" name="expected_return_before" required>
-
-            <label for="expected_return_during">Expected return on investments during retirement (%):</label>
-            <input type="number" id="expected_return_during" name="expected_return_during" required>
-
-            <button type="submit" id="calculate-bttn">Calculate</button>
-        </form>
-
-
-        <div id="results" class="results-section">
-            <h2>
-                Profession: <span id="selected-profession">N/A</span> |
-                Your Total Savings at Retirement: $<span id="total-savings">0.00</span>
-            </h2>
+        <div id="results" class="mb-4">
+            <h2 class="text-center text-info">Results</h2>
+            <p class="text-center">
+                <strong>Profession:</strong> <span id="selected-profession">N/A</span> |
+                <strong>Total Savings at Retirement:</strong> $<span id="total-savings">0.00</span>
+            </p>
             <canvas id="savingsChart" width="400" height="200"></canvas>
         </div>
 
-
-        <div id="saved-calculations" class="saved-section">
+        <div id="saved-calculations">
             {% if saved_calculations %}
-            <h2>Saved Calculations</h2>
-            <ul>
+            <h2 class="text-center text-success">Saved Calculations</h2>
+            <ul class="list-group">
                 {% for calculation in saved_calculations %}
-                <li>
-                    Profession: {{ calculation.profession }}. From age {{ calculation.current_age }} to {{
-                    calculation.retirement_age }}.
-                    Last balance: ${{ calculation.balances[-1] }}. Total savings: ${{
-                    calculation.total_savings_at_retirement }}.
-
-                    <button class="show-graph-button" data-id="{{ calculation._id }}">Show Graph</button>
-
-                    <form method="POST" action="{{ url_for('delete_calculation', calculation_id=calculation._id) }}"
-                        style="display: inline;">
-                        <button type="submit" class="delete-button">Delete</button>
-                    </form>
+                <li class="list-group-item">
+                    <strong>Profession:</strong> {{ calculation.profession }} |
+                    <strong>Age:</strong> {{ calculation.current_age }} to {{ calculation.retirement_age }} |
+                    <strong>Final Balance:</strong> ${{ calculation.total_savings_at_retirement }}
+                    <div class="mt-2">
+                        <button class="btn btn-info btn-sm show-graph-button" data-id="{{ calculation._id }}">Show
+                            Graph</button>
+                        <form method="POST" action="{{ url_for('delete_calculation', calculation_id=calculation._id) }}"
+                            style="display: inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </div>
                 </li>
                 {% endfor %}
             </ul>
